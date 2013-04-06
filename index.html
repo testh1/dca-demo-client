@@ -1,0 +1,73 @@
+<html>
+    <head>
+		<title>Works Demo</title>
+		<script src="js/jquery.js"></script>
+  		<script src="js/handlebars.js"></script>
+  		<script src="js/ember.js"></script>
+  		<script src="js/ember-data.js"></script>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet"/>
+        <style media="screen" type="text/css">
+  			.active {
+  				background: #88ff88
+  			}
+  		</style>
+	</head>
+	<body>
+		<script type="text/javascript" language="javascript">
+		App = Ember.Application.create();	
+
+		App.Store = DS.Store.extend({
+			revision : 12,
+			adapter : DS.RESTAdapter.extend({
+				url : "http://dca-demo-service.testh1.c9.io"
+			})
+		});
+			
+		App.Router.map(function(){
+			this.resource('works', function(){
+				this.resource('work', { path : ':work_id'});
+			});
+		});
+
+		App.IndexRoute = Ember.Route.extend({
+		  redirect: function() {
+		    this.transitionTo('works');
+		  }
+		});
+
+		App.Work = DS.Model.extend({
+			title : DS.attr('string'),
+			uri : DS.attr('string')
+		});
+
+		App.WorksRoute = Ember.Route.extend({
+			model : function() { 
+				return App.Work.find();
+			}
+		});
+
+		</script>
+		<script type="text/x-handlebars" data-template-name="application">
+			{{outlet}}
+		</script>
+		<script type="text/x-handlebars" data-template-name="works">
+			<table border="1" {{bindAttr class="manyEmployees"}}>
+			<tr><th>ID</th><th>Title</th></tr>
+			{{#each work in controller}}
+				{{partial 'work_row'}}
+			{{/each}}
+			</table>
+			{{outlet}}
+		</script>
+		<script type="text/x-handlebars" data-template-name="_work_row">
+			<tr>
+				<td>{{work.id}}</td>
+				<td>{{#linkTo 'work' work}} {{work.title}} {{/linkTo}}</td>
+			</tr>
+		</script>
+
+		<script type="text/x-handlebars" data-template-name="work">
+		Link: <a target="_blank" {{bindAttr href="uri"}}>{{uri}}</a> 
+		</script>
+	</body>
+</html>
